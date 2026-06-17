@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/records/records",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "仓位计算器",
+    "navigationBarBackgroundColor": "#0d1117"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#666e80",
+    "selectedColor": "#fa8c16",
+    "backgroundColor": "#161b27",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "计算器"
+      },
+      {
+        "pagePath": "pages/records/records",
+        "text": "开仓记录"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

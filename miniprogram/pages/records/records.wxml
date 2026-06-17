@@ -1,0 +1,365 @@
+<!--pages/records/records.wxml - 开仓记录页面-->
+<scroll-view class="scrollarea" scroll-y>
+  <view class="container">
+
+    <!-- 顶部标题栏 -->
+    <view class="top-bar">
+      <view class="top-bar-left">
+        <view class="app-logo">
+          <text class="logo-icon">📊</text>
+        </view>
+        <text class="top-title">开仓记录</text>
+      </view>
+      <view class="export-btn" bindtap="onShowExportModal">📤 导出</view>
+    </view>
+
+    <!-- 统计四格 -->
+    <view class="stats-grid">
+      <view class="stats-item">
+        <view class="stats-val blue-val">{{totalCount}}</view>
+        <view class="stats-label">总笔数</view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-val orange-val">{{holdingCount}}</view>
+        <view class="stats-label">持仓中</view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-val green-val">{{profitCount}}</view>
+        <view class="stats-label">盈利笔</view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-val red-val">{{lossCount}}</view>
+        <view class="stats-label">亏损笔</view>
+      </view>
+    </view>
+
+    <!-- 累计盈亏 -->
+    <view class="pnl-card">
+      <view class="pnl-row">
+        <text class="pnl-label">累计盈亏</text>
+        <text class="pnl-val {{totalPnl[0] === '+' ? 'green-val' : (totalPnl[0] === '-' ? 'red-val' : '')}}">{{totalPnl}} USD</text>
+      </view>
+      <view class="pnl-row">
+        <text class="pnl-label">胜率</text>
+        <text class="pnl-winrate">{{winRate}}%</text>
+      </view>
+    </view>
+
+    <!-- 筛选 Tab -->
+    <view class="filter-tabs">
+      <view
+        wx:for="{{[{k:'all',v:'全部'},{k:'holding',v:'持仓中'},{k:'profit',v:'已盈利'},{k:'loss',v:'已止损'}]}}"
+        wx:key="k"
+        class="filter-tab {{filterStatus === item.k ? 'filter-tab-active' : ''}}"
+        bindtap="onFilterChange"
+        data-status="{{item.k}}"
+      >{{item.v}}</view>
+    </view>
+
+    <!-- 新增按钮 -->
+    <view class="add-record-btn" bindtap="onShowAddModal">+ 新增开仓记录</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{records.length === 0}}" class="empty-state">
+      <view class="empty-icon">📋</view>
+      <view class="empty-text">暂无开仓记录</view>
+      <view class="empty-sub">点击上方按钮新增，或在计算器中保存</view>
+    </view>
+
+    <!-- 记录列表 -->
+    <block wx:for="{{records}}" wx:key="id">
+      <view wx:if="{{filterStatus === 'all' || filterStatus === item.status}}" class="rec-card">
+
+        <!-- 记录头 -->
+        <view class="rec-head">
+          <view class="rec-head-left">
+            <view class="rec-dir-tag {{item.direction === 'long' ? 'rdt-long' : 'rdt-short'}}">
+              {{item.direction === 'long' ? '▲ 多' : '▼ 空'}}
+            </view>
+            <view class="rec-coin-info">
+              <text class="rec-coin-lev">{{item.coin || 'BTC'}} · {{item.leverage}}x</text>
+              <text class="rec-time">{{item.time}}</text>
+            </view>
+          </view>
+          <view class="rec-head-right">
+            <view
+              class="rec-status-tag {{item.status === 'holding' ? 'rst-holding' : (item.status === 'profit' ? 'rst-profit' : 'rst-loss')}}"
+              bindtap="{{item.status === 'holding' ? 'onToggleCloseInput' : ''}}"
+              data-id="{{item.id}}"
+            >
+              {{item.status === 'holding' ? (expandedCloseIds[item.id] ? '收起 ▲' : '持仓中 ▼') : (item.status === 'profit' ? '已盈利' : '已止损')}}
+            </view>
+            <view class="rec-del-btn" bindtap="deleteRecord" data-id="{{item.id}}">✕</view>
+          </view>
+        </view>
+
+        <!-- 数据网格：两行三列 -->
+        <view class="rec-data-grid">
+          <view class="rdg-item">
+            <view class="rdg-item-label">入场价</view>
+            <view class="rdg-item-val">{{item.entryPrice}}</view>
+          </view>
+          <view class="rdg-item">
+            <view class="rdg-item-label">止损价</view>
+            <view class="rdg-item-val red-val">{{item.stopLossPrice}}</view>
+          </view>
+          <view class="rdg-item">
+            <view class="rdg-item-label">止盈</view>
+            <view class="rdg-item-val green-val">{{item.takeProfitPrice || '未设置'}}</view>
+          </view>
+          <view class="rdg-item">
+            <view class="rdg-item-label">下单量</view>
+            <view class="rdg-item-val orange-val">{{item.orderQty}} <text style="font-size:22rpx;font-weight:400">{{item.coin || 'BTC'}}</text></view>
+          </view>
+          <view class="rdg-item">
+            <view class="rdg-item-label">最大亏损</view>
+            <view class="rdg-item-val red-val">{{item.maxLoss}} U</view>
+          </view>
+          <view class="rdg-item">
+            <view class="rdg-item-label">保证金</view>
+            <view class="rdg-item-val">{{item.margin}} U</view>
+          </view>
+        </view>
+
+        <!-- 备注（有备注时展示） -->
+        <view wx:if="{{item.note}}" class="rec-note-row">
+          <text>📝</text>
+          <text>{{item.note}}</text>
+        </view>
+
+        <!-- 平仓信息（已平仓） -->
+        <view wx:if="{{item.status !== 'holding'}}" class="rec-close-row">
+          <text class="rec-close-label">PnL  平仓价 {{item.closePrice}} · 实际盈亏</text>
+          <text class="rec-close-pnl {{parseFloat(item.realPnl) >= 0 ? 'green-val' : 'red-val'}}">{{parseFloat(item.realPnl) >= 0 ? '+' : ''}}{{item.realPnl}} USD</text>
+        </view>
+
+        <!-- 平仓输入行（持仓中，点击状态标签展开） -->
+        <view wx:if="{{item.status === 'holding' && expandedCloseIds[item.id]}}" class="rec-close-input-row">
+          <text class="rec-close-label">平仓价格 (USD)</text>
+          <view class="rec-close-input-wrap">
+            <input class="rec-close-input" type="digit" placeholder="目标价 / 止损价" placeholder-class="dark-placeholder" data-id="{{item.id}}" bindinput="onClosePriceInputInline"/>
+            <view class="rec-confirm-btn" bindtap="onClosePositionInline" data-id="{{item.id}}">确认</view>
+          </view>
+        </view>
+
+      </view>
+    </block>
+
+  </view>
+</scroll-view>
+
+<!-- 新增开仓记录弹窗 -->
+<view wx:if="{{showAddModal}}" class="modal-mask" catchtap="onHideAddModal">
+  <view class="modal-box" catchtap="onStopPropagation">
+
+    <!-- 弹窗标题栏 -->
+    <view class="modal-header">
+      <text class="modal-title">新增开仓记录</text>
+      <view class="modal-close-btn" bindtap="onHideAddModal">✕</view>
+    </view>
+
+    <!-- 做多/做空切换 -->
+    <view class="modal-dir-switch">
+      <view
+        class="modal-dir-seg {{newRecord.direction === 'long' ? 'mds-long' : 'mds-off'}}"
+        bindtap="onNewRecordDirection"
+        data-value="long"
+      >▲ 做多 LONG</view>
+      <view
+        class="modal-dir-seg {{newRecord.direction === 'short' ? 'mds-short' : 'mds-off'}}"
+        bindtap="onNewRecordDirection"
+        data-value="short"
+      >▼ 做空 SHORT</view>
+    </view>
+
+    <!-- 可滚动表单区 -->
+    <scroll-view scroll-y class="modal-scroll">
+
+      <!-- 交易对/币种 -->
+      <view class="modal-field">
+        <text class="modal-label">交易对 / 币种 <text class="modal-label-required">*</text></text>
+        <input
+          class="modal-input"
+          value="{{newRecord.coin}}"
+          bindinput="onNewRecordInput"
+          data-field="coin"
+          placeholder="币种"
+          placeholder-class="dark-placeholder"
+        />
+      </view>
+
+      <!-- 入场价格 + 止损价格（两列） -->
+      <view class="modal-row2">
+        <view class="modal-field modal-field-half">
+          <text class="modal-label">入场价格 (USD) <text class="modal-label-required">*</text></text>
+          <input
+            class="modal-input"
+            type="digit"
+            value="{{newRecord.entryPrice}}"
+            bindinput="onNewRecordInput"
+            data-field="entryPrice"
+            placeholder="2100"
+            placeholder-class="dark-placeholder"
+          />
+        </view>
+        <view class="modal-field modal-field-half">
+          <text class="modal-label">止损价格 (USD) <text class="modal-label-required">*</text></text>
+          <input
+            class="modal-input"
+            type="digit"
+            value="{{newRecord.stopLossPrice}}"
+            bindinput="onNewRecordInput"
+            data-field="stopLossPrice"
+            placeholder="2050"
+            placeholder-class="dark-placeholder"
+          />
+        </view>
+      </view>
+
+      <!-- 下单数量 + 杠杆（两列） -->
+      <view class="modal-row2">
+        <view class="modal-field modal-field-half">
+          <!-- 标签行：左侧"下单数量"，右侧单位切换 -->
+          <view class="modal-label-row">
+            <text class="modal-label" style="margin-bottom:0">下单数量 <text class="modal-label-required">*</text></text>
+            <view class="modal-qty-switch">
+              <view class="modal-qty-tab {{newRecord.orderQtyUnit === 'coin' ? 'mqt-active' : ''}}" bindtap="onNewRecordQtyUnit" data-unit="coin">币</view>
+              <view class="modal-qty-tab {{newRecord.orderQtyUnit === 'usd' ? 'mqt-active' : ''}}" bindtap="onNewRecordQtyUnit" data-unit="usd">USD</view>
+            </view>
+          </view>
+          <input
+            class="modal-input"
+            type="digit"
+            value="{{newRecord.orderQty}}"
+            bindinput="onNewRecordInput"
+            data-field="orderQty"
+            placeholder="{{newRecord.orderQtyUnit === 'coin' ? '0.20' : '200'}}"
+            placeholder-class="dark-placeholder"
+          />
+        </view>
+        <view class="modal-field modal-field-half">
+          <text class="modal-label">杠杆 <text class="modal-label-required">*</text></text>
+          <input
+            class="modal-input"
+            type="number"
+            value="{{newRecord.leverage}}"
+            bindinput="onNewRecordInput"
+            data-field="leverage"
+            placeholder="10"
+            placeholder-class="dark-placeholder"
+          />
+        </view>
+      </view>
+
+      <!-- 止盈价格（可选） -->
+      <view class="modal-field">
+        <text class="modal-label">止盈价格 (USD, 可选)</text>
+        <input
+          class="modal-input"
+          type="digit"
+          value="{{newRecord.takeProfitPrice}}"
+          bindinput="onNewRecordInput"
+          data-field="takeProfitPrice"
+          placeholder="留空即可"
+          placeholder-class="dark-placeholder"
+        />
+      </view>
+
+      <!-- 入场逻辑（必填） -->
+      <view class="modal-field">
+        <text class="modal-label">入场逻辑 <text class="modal-label-required">*</text></text>
+        <textarea
+          class="modal-textarea"
+          value="{{newRecord.note}}"
+          bindinput="onNewRecordInput"
+          data-field="note"
+          placeholder="请填写入场逻辑、交易依据..."
+          placeholder-class="dark-placeholder"
+          auto-height
+          maxlength="200"
+        />
+      </view>
+
+
+
+    </scroll-view>
+
+    <!-- 保存按钮 -->
+    <view class="modal-save-wrap">
+      <view class="modal-save-btn" bindtap="onAddRecord">
+        <text class="modal-save-icon">✅</text>
+        <text class="modal-save-text">保存记录</text>
+      </view>
+    </view>
+
+  </view>
+</view>
+
+<!-- 平仓弹窗（备用） -->
+<view wx:if="{{showCloseModal}}" class="modal-mask" catchtap="onHideCloseModal">
+  <view class="modal-box" catchtap="onStopPropagation">
+    <view class="modal-title">记录平仓</view>
+    <view class="modal-field">
+      <text class="modal-label">平仓价格</text>
+      <input class="modal-input" type="digit" value="{{closePrice}}" bindinput="onClosePriceInput" placeholder="请输入平仓价" placeholder-class="dark-placeholder"/>
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">平仓结果</text>
+      <view class="modal-dir-row">
+        <view class="modal-dir-btn {{closeStatus === 'profit' ? 'mdir-long' : 'mdir-off'}}" bindtap="onCloseStatusChange" data-status="profit">已盈利</view>
+        <view class="modal-dir-btn {{closeStatus === 'loss' ? 'mdir-short' : 'mdir-off'}}" bindtap="onCloseStatusChange" data-status="loss">已止损</view>
+      </view>
+    </view>
+    <view class="modal-btns">
+      <view class="modal-cancel" bindtap="onHideCloseModal">取消</view>
+      <view class="modal-confirm" bindtap="onConfirmClose">确认平仓</view>
+    </view>
+  </view>
+</view>
+
+<!-- 导出格式选择弹窗 -->
+<view wx:if="{{showExportModal}}" class="modal-mask" catchtap="onHideExportModal">
+  <view class="export-modal-box" catchtap="onStopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">导出开仓记录</text>
+      <view class="modal-close-btn" bindtap="onHideExportModal">✕</view>
+    </view>
+    <view class="export-desc">将导出 {{records.length}} 条记录（当前筛选：{{exportFilterLabel}}）</view>
+    <view class="export-options">
+      <view class="export-option-item" bindtap="onExport" data-format="csv">
+        <view class="export-opt-icon">📊</view>
+        <view class="export-opt-info">
+          <view class="export-opt-title">CSV 表格</view>
+          <view class="export-opt-desc">可用 Excel / Numbers 打开</view>
+        </view>
+        <view class="export-opt-arrow">›</view>
+      </view>
+      <view class="export-option-item" bindtap="onExport" data-format="md">
+        <view class="export-opt-icon">📝</view>
+        <view class="export-opt-info">
+          <view class="export-opt-title">Markdown 文档</view>
+          <view class="export-opt-desc">可用 Typora / Notion 打开</view>
+        </view>
+        <view class="export-opt-arrow">›</view>
+      </view>
+      <view class="export-option-item" bindtap="onExport" data-format="pdf">
+        <view class="export-opt-icon">🖼️</view>
+        <view class="export-opt-info">
+          <view class="export-opt-title">图片（保存到相册）</view>
+          <view class="export-opt-desc">截图保存，可分享给他人</view>
+        </view>
+        <view class="export-opt-arrow">›</view>
+      </view>
+    </view>
+    <view class="export-scope-row">
+      <text class="export-scope-label">导出范围</text>
+      <view class="export-scope-tabs">
+        <view class="export-scope-tab {{exportScope === 'all' ? 'esc-active' : ''}}" bindtap="onExportScopeChange" data-scope="all">全部</view>
+        <view class="export-scope-tab {{exportScope === 'filtered' ? 'esc-active' : ''}}" bindtap="onExportScopeChange" data-scope="filtered">当前筛选</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 导出图片用的隐藏 Canvas -->
+<canvas canvas-id="exportCanvas" class="export-canvas" style="width:{{exportCanvasW}}px;height:{{exportCanvasH}}px;"></canvas>

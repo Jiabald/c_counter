@@ -1,0 +1,283 @@
+<!--pages/index/index.wxml - 仓位计算器-->
+<scroll-view class="scrollarea" scroll-y>
+  <view class="container">
+
+    <!-- 顶部标题栏 -->
+    <view class="top-bar">
+      <view class="top-bar-left">
+        <view class="app-logo">
+          <text class="logo-icon">📊</text>
+        </view>
+        <text class="top-title">仓位计算器</text>
+      </view>
+      <view class="leverage-tag">{{leverage}}x Leverage</view>
+    </view>
+
+    <!-- 做多/做空切换 -->
+    <view class="direction-switch">
+      <view
+        class="dir-btn {{direction === 'long' ? 'dir-long-active' : 'dir-inactive'}}"
+        bindtap="onDirectionChange"
+        data-value="long"
+      >▲ 做多 LONG</view>
+      <view
+        class="dir-btn {{direction === 'short' ? 'dir-short-active' : 'dir-inactive'}}"
+        bindtap="onDirectionChange"
+        data-value="short"
+      >▼ 做空 SHORT</view>
+    </view>
+
+    <!-- 基本参数卡片 -->
+    <view class="dark-card">
+      <view class="card-section-title">
+        <view class="section-bar"></view>
+        <text>基本参数</text>
+      </view>
+
+      <view class="field-item">
+        <view class="field-label">本金</view>
+        <view class="dark-input-wrap">
+          <input class="dark-input" type="digit" placeholder="200" placeholder-class="dark-placeholder" value="{{principal}}" bindinput="onPrincipalInput"/>
+          <text class="field-unit">USD</text>
+        </view>
+      </view>
+
+      <view class="field-item">
+        <view class="field-label">入场价格</view>
+        <view class="dark-input-wrap">
+          <input class="dark-input" type="digit" placeholder="0.00" placeholder-class="dark-placeholder" value="{{entryPrice}}" bindinput="onEntryPriceInput"/>
+          <text class="field-unit">USD</text>
+        </view>
+      </view>
+
+      <view class="field-item">
+        <view class="field-label">止损价格</view>
+        <view class="dark-input-wrap">
+          <input class="dark-input" type="digit" placeholder="0.00" placeholder-class="dark-placeholder" value="{{stopLossPrice}}" bindinput="onStopLossPriceInput"/>
+          <text class="field-unit">USD</text>
+        </view>
+      </view>
+
+      <view class="field-item" style="margin-bottom:0">
+        <view class="field-label">盈亏比 <text class="field-hint">（盈利空间 / 止损空间）</text></view>
+        <view class="dark-input-wrap">
+          <input class="dark-input" type="digit" placeholder="2" placeholder-class="dark-placeholder" value="{{riskRewardRatio}}" bindinput="onRiskRewardRatioInput"/>
+          <text class="field-unit">: 1</text>
+        </view>
+        <view class="quick-btns" style="margin-top:16rpx">
+          <view wx:for="{{quickRatios}}" wx:key="*this" class="quick-btn {{riskRewardRatio == item ? 'qbtn-green-active' : 'qbtn-dark'}}" bindtap="onQuickRatio" data-value="{{item}}">1:{{item}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 杠杆倍数卡片 -->
+    <view class="dark-card">
+      <view class="card-section-title">
+        <view class="section-bar"></view>
+        <text>杠杆倍数</text>
+        <view class="slider-badge orange-badge">{{leverage}}x</view>
+      </view>
+      <slider class="dark-slider" min="1" max="125" step="1" value="{{leverage}}" bindchange="onLeverageChange" activeColor="#fa8c16" backgroundColor="#2a2d3e" block-color="#fa8c16" block-size="28"/>
+      <view class="quick-btns">
+        <view wx:for="{{quickLeverages}}" wx:key="*this" class="quick-btn {{leverage === item ? 'qbtn-orange-active' : 'qbtn-dark'}}" bindtap="onQuickLeverage" data-value="{{item}}">{{item}}x</view>
+      </view>
+    </view>
+
+    <!-- 单次风险比例卡片 -->
+    <view class="dark-card risk-card">
+      <view class="card-section-title">
+        <view class="section-bar blue-bar"></view>
+        <text>单次风险比例</text>
+        <view class="slider-badge blue-badge">{{riskPercent}}%</view>
+      </view>
+      <slider class="dark-slider" min="0.5" max="20" step="0.5" value="{{riskPercent}}" bindchange="onSliderChange" activeColor="#4a9eff" backgroundColor="#2a2d3e" block-color="#4a9eff" block-size="28"/>
+      <view class="quick-btns">
+        <view wx:for="{{quickPercents}}" wx:key="*this" class="quick-btn {{riskPercent === item ? 'qbtn-blue-active' : 'qbtn-dark'}}" bindtap="onQuickPercent" data-value="{{item}}">{{item}}%</view>
+      </view>
+    </view>
+
+    <!-- 手续费设置卡片 -->
+    <view class="dark-card fee-setting-card">
+      <view class="card-section-title">
+        <view class="section-bar" style="background:#a855f7"></view>
+        <text>手续费设置</text>
+      </view>
+      <view class="fee-setting-row">
+        <view class="fee-setting-item">
+          <view class="fee-setting-label">
+            <text class="fee-setting-tag maker-tag">Maker</text>
+            <text class="fee-setting-desc">开仓限价单</text>
+          </view>
+          <view class="dark-input-wrap fee-input-wrap">
+            <input class="dark-input" type="digit" value="{{makerRateInput}}" bindinput="onMakerRateInput" placeholder="0.02" placeholder-class="dark-placeholder"/>
+            <text class="field-unit">%</text>
+          </view>
+        </view>
+        <view class="fee-setting-divider"></view>
+        <view class="fee-setting-item">
+          <view class="fee-setting-label">
+            <text class="fee-setting-tag taker-tag">Taker</text>
+            <text class="fee-setting-desc">平仓市价单</text>
+          </view>
+          <view class="dark-input-wrap fee-input-wrap">
+            <input class="dark-input" type="digit" value="{{takerRateInput}}" bindinput="onTakerRateInput" placeholder="0.05" placeholder-class="dark-placeholder"/>
+            <text class="field-unit">%</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 计算按钮 -->
+    <view class="calc-btn-wrap">
+      <button class="calc-btn" bindtap="calculate">⚡ 立即计算仓位</button>
+    </view>
+
+    <!-- 结果卡片 -->
+    <view class="result-card {{hasResult && !errorMsg ? 'result-show' : ''}}">
+      <!-- 顶部标题栏 -->
+      <view class="result-card-header">
+        <view class="rch-left">
+          <text class="rch-icon">📈</text>
+          <text class="rch-title">计算结果</text>
+        </view>
+        <view class="rch-right">
+          <view class="rch-dir-tag {{direction === 'long' ? 'rch-tag-long' : 'rch-tag-short'}}">
+            {{direction === 'long' ? 'LONG' : 'SHORT'}}
+          </view>
+          <view class="rch-save-btn" bindtap="saveRecord">+ 记录开仓</view>
+        </view>
+      </view>
+
+      <!-- 顶部：建议下单数量（居中） -->
+      <view class="result-head">
+        <view class="result-head-label">建议下单数量</view>
+        <!-- 单位切换 Tab -->
+        <view class="qty-unit-switch">
+          <view class="qty-unit-tab {{qtyUnit === 'coin' ? 'qty-tab-active' : ''}}" bindtap="onQtyUnitChange" data-unit="coin">币</view>
+          <view class="qty-unit-tab {{qtyUnit === 'usd' ? 'qty-tab-active' : ''}}" bindtap="onQtyUnitChange" data-unit="usd">USD</view>
+        </view>
+        <view class="result-qty-row">
+          <text class="result-main-val">{{qtyUnit === 'coin' ? orderQty : orderQtyUsdt}}</text>
+          <text class="result-main-unit">{{qtyUnit === 'coin' ? '币' : 'USD'}}</text>
+        </view>
+        <view class="result-notional">持仓名义价值：{{orderValue}} USD</view>
+      </view>
+
+      <!-- 保证金占用 / 剩余保证金 -->
+      <view class="margin-usage-card">
+        <!-- 圆环 -->
+        <view class="ring-wrap">
+          <canvas canvas-id="ringCanvas" class="ring-canvas"></canvas>
+        </view>
+        <!-- 中间：保证金占用 -->
+        <view class="usage-mid">
+          <view class="usage-label">保证金占用</view>
+          <view class="usage-val orange-val">{{margin}} USD</view>
+          <view class="usage-sub">占本金 {{marginRatioText}}%</view>
+        </view>
+        <!-- 右侧：剩余保证金 -->
+        <view class="usage-right">
+          <view class="usage-label">剩余保证金</view>
+          <view class="usage-val {{remainMarginNegative ? 'red-val' : 'green-val'}}">{{remainMargin}} USD</view>
+        </view>
+      </view>
+
+      <!-- 2x2 数据网格 -->
+      <view class="result-grid">
+        <view class="rg-item">
+          <view class="rg-label">最大亏损</view>
+          <view class="rg-val red-val">{{maxLoss}} USD</view>
+        </view>
+        <view class="rg-item">
+          <view class="rg-label">止损幅度</view>
+          <view class="rg-val">{{stopLossRange}}%</view>
+        </view>
+        <view class="rg-item">
+          <view class="rg-label">入场价</view>
+          <view class="rg-val">{{entryPrice}}</view>
+        </view>
+        <view class="rg-item">
+          <view class="rg-label">止损价</view>
+          <view class="rg-val red-val">{{stopLossPrice}}</view>
+        </view>
+        <view class="rg-item">
+          <view class="rg-label">止盈价 <text class="rg-sub">1:{{riskRewardRatio}}</text></view>
+          <view class="rg-val green-val">{{takeProfitPrice}}</view>
+        </view>
+        <view class="rg-item">
+          <view class="rg-label">盈亏比</view>
+          <view class="rg-val green-val">1 : {{riskRewardRatio}}</view>
+        </view>
+      </view>
+
+      <!-- 手续费明细 -->
+      <view class="fee-detail-card">
+        <view class="fee-detail-title">
+          <text class="fee-detail-icon">💰</text>
+          <text>手续费明细</text>
+        </view>
+        <view class="fee-rate-info">
+          <view class="fee-rate-info-item">
+            <text class="fee-rate-tag maker-tag">Maker</text>
+            <text class="fee-rate-text">开仓 {{makerRateInput}}%</text>
+          </view>
+          <view class="fee-rate-info-item">
+            <text class="fee-rate-tag taker-tag">Taker</text>
+            <text class="fee-rate-text">平仓 {{takerRateInput}}%</text>
+          </view>
+        </view>
+        <view class="fee-detail-row">
+          <view class="fee-detail-item">
+            <view class="fee-detail-label">开仓手续费</view>
+            <view class="fee-detail-val">{{openFee}} USD</view>
+          </view>
+          <view class="fee-detail-sep"></view>
+          <view class="fee-detail-item">
+            <view class="fee-detail-label">平仓手续费</view>
+            <view class="fee-detail-val">{{closeFee}} USD</view>
+          </view>
+          <view class="fee-detail-sep"></view>
+          <view class="fee-detail-item">
+            <view class="fee-detail-label">总手续费</view>
+            <view class="fee-detail-val fee-total-val">{{totalFee}} USD</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 保证金状态栏 -->
+      <view class="margin-status-bar {{marginWarning ? 'margin-warn' : 'margin-ok'}}">
+        <view class="msb-icon">{{marginWarning ? '⚠️' : '✅'}}</view>
+        <view class="msb-text">
+          <view class="msb-title">{{marginWarning ? '保证金不足' : '保证金充足'}}</view>
+          <view class="msb-desc">{{marginWarning ? '请提高杠杆至 ' + requiredLeverage + 'x' : '风险可控，止损后最多亏损本金的 ' + riskPercent + '%'}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错误提示 -->
+    <view wx:if="{{hasResult && errorMsg}}" class="error-bar">⚠️ {{errorMsg}}</view>
+
+    <!-- 计算公式说明 -->
+    <view class="formula-card" bindtap="onToggleFormula">
+      <view class="formula-header">
+        <view class="formula-title-row">
+          <text class="formula-icon">📐</text>
+          <text class="formula-title">计算公式说明</text>
+        </view>
+        <text class="formula-arrow">{{showFormula ? '▲' : '▼'}}</text>
+      </view>
+      <view wx:if="{{showFormula}}" class="formula-body">
+        <view class="formula-line">最大亏损 = 本金 × 风险比例</view>
+        <view class="formula-line">止损幅度 = |入场价 - 止损价| / 入场价</view>
+        <view class="formula-line">止盈价(做多) = 入场价 + |入场价 - 止损价| × 盈亏比</view>
+        <view class="formula-line">止盈价(做空) = 入场价 - |入场价 - 止损价| × 盈亏比</view>
+        <view class="formula-line">开仓手续费 = 下单价值 × 0.02%（Maker 限价单）</view>
+        <view class="formula-line">平仓手续费 = 下单价值 × (止损价/入场价) × 0.05%（Taker 市价单）</view>
+        <view class="formula-line">建议仓位 = 最大亏损 / (止损幅度 + Maker费率 + 止损价/入场价×Taker费率)</view>
+        <view class="formula-line">所需保证金 = 建议仓位 / 杠杆</view>
+        <view class="formula-line">下单数量 = 建议仓位 / 入场价</view>
+      </view>
+    </view>
+
+  </view>
+</scroll-view>

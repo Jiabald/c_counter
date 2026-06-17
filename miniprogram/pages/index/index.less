@@ -1,0 +1,867 @@
+/**index.less - 仓位计算器页面样式（暗色主题）**/
+
+page {
+  height: 100vh;
+  background: #0d1117;
+  color: #e0e0e0;
+}
+
+.scrollarea {
+  height: calc(100vh - 120rpx - env(safe-area-inset-bottom));
+  overflow-y: hidden;
+}
+
+/* ===== 顶部标题栏 ===== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 56rpx 32rpx 24rpx;
+  background: #0d1117;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.app-logo {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 14rpx;
+  background: linear-gradient(135deg, #1a2a4a, #0d1117);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon {
+  font-size: 36rpx;
+  line-height: 1;
+}
+
+.top-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1rpx;
+}
+
+.leverage-tag {
+  background: #fa8c16;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 700;
+  padding: 12rpx 28rpx;
+  border-radius: 30rpx;
+}
+
+/* ===== 做多/做空切换 ===== */
+.direction-switch {
+  display: flex;
+  margin: 0 24rpx 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  border: 1.5rpx solid #2a2d3e;
+  background: #161b27;
+}
+
+.dir-btn {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.dir-long-active {
+  background: #1e4620;
+  color: #52c41a;
+}
+
+.dir-short-active {
+  background: #3a1a1a;
+  color: #ff4d4f;
+}
+
+.dir-inactive {
+  background: #161b27;
+  color: #555;
+}
+
+/* ===== 暗色卡片 ===== */
+.dark-card {
+  background: #161b27;
+  margin: 0 24rpx 16rpx;
+  border-radius: 20rpx;
+  padding: 28rpx 28rpx 24rpx;
+  border: 1rpx solid #1e2436;
+}
+
+.risk-card {
+  border-left: 4rpx solid #4a9eff;
+}
+
+.card-section-title {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #e0e0e0;
+  margin-bottom: 24rpx;
+}
+
+.section-bar {
+  width: 6rpx;
+  height: 30rpx;
+  background: #fa8c16;
+  border-radius: 3rpx;
+  flex-shrink: 0;
+}
+
+.blue-bar { background: #4a9eff; }
+
+/* 标题右侧徽章 */
+.card-section-title .slider-badge {
+  margin-left: auto;
+}
+
+/* ===== 输入字段 ===== */
+.field-item { margin-bottom: 20rpx; }
+
+.field-label {
+  font-size: 24rpx;
+  color: #8892a4;
+  margin-bottom: 10rpx;
+}
+
+.field-hint {
+  font-size: 22rpx;
+  color: #555e72;
+  font-weight: 400;
+}
+
+.dark-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #0d1117;
+  border-radius: 12rpx;
+  border: 1.5rpx solid #2a2d3e;
+  padding: 0 24rpx;
+  height: 88rpx;
+}
+
+.dark-input {
+  flex: 1;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #e8eaf0;
+  height: 88rpx;
+  line-height: 88rpx;
+}
+
+.dark-placeholder { color: #3a3f52; }
+.field-unit { font-size: 26rpx; color: #555; font-weight: 500; }
+
+/* ===== 滑块 ===== */
+.dark-slider {
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.slider-badge {
+  min-width: 80rpx;
+  text-align: center;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  padding: 10rpx 20rpx;
+}
+
+.orange-badge {
+  background: #fa8c16;
+  color: #fff;
+  border-radius: 10rpx;
+}
+
+.blue-badge {
+  background: #4a9eff;
+  color: #fff;
+  border-radius: 10rpx;
+}
+
+/* ===== 快捷按钮 ===== */
+.quick-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.quick-btn {
+  padding: 14rpx 26rpx;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.qbtn-dark {
+  background: #1e2436;
+  color: #8892a4;
+  border: 1.5rpx solid #2a2d3e;
+}
+
+.qbtn-orange-active {
+  background: #2a1f0a;
+  color: #fa8c16;
+  border: 1.5rpx solid #fa8c16;
+}
+
+.qbtn-blue-active {
+  background: #0a1a2a;
+  color: #4a9eff;
+  border: 1.5rpx solid #4a9eff;
+}
+
+.qbtn-green-active {
+  background: #0a1f0a;
+  color: #52c41a;
+  border: 1.5rpx solid #52c41a;
+}
+
+/* ===== 计算按钮 ===== */
+.calc-btn-wrap { margin: 0 24rpx 20rpx; }
+
+.calc-btn {
+  width: 100%;
+  height: 108rpx;
+  line-height: 108rpx;
+  background: linear-gradient(135deg, #f7931e, #fa8c16);
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 700;
+  border-radius: 16rpx;
+  border: none;
+  letter-spacing: 4rpx;
+  box-shadow: 0 8rpx 32rpx rgba(250, 140, 22, 0.45);
+}
+
+.calc-btn::after { border: none; }
+
+/* ===== 公式说明 ===== */
+.formula-card {
+  margin: 0 24rpx 20rpx;
+  background: #161b27;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  border: 1rpx solid #1e2436;
+}
+
+.formula-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.formula-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.formula-icon { font-size: 20rpx; color: #fa8c16; }
+.formula-title { font-size: 26rpx; color: #8892a4; }
+.formula-arrow { font-size: 22rpx; color: #555; }
+
+.formula-body {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #1e2436;
+}
+
+.formula-line { font-size: 24rpx; color: #6a7485; line-height: 2; }
+
+/* ===== 结果卡片 ===== */
+.result-card {
+  margin: 0 24rpx 16rpx;
+  background: #161b27;
+  border-radius: 20rpx;
+  padding: 0 0 24rpx;
+  border: 1rpx solid #1e2436;
+  overflow: hidden;
+  display: none;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+}
+
+.result-show { display: block; }
+
+/* 结果卡片顶部标题栏 */
+.result-card-header {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(247,147,26,.08), rgba(247,147,26,.03));
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+  border-bottom: 1rpx solid #1e2436;
+}
+
+.rch-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.rch-icon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.rch-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #52c41a;
+  letter-spacing: 1rpx;
+}
+
+.rch-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.rch-dir-tag {
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  letter-spacing: 1rpx;
+}
+
+.rch-tag-long {
+  background: rgba(82, 196, 26, 0.15);
+  color: #52c41a;
+  border: 1rpx solid rgba(82, 196, 26, 0.4);
+}
+
+.rch-tag-short {
+  background: rgba(255, 77, 79, 0.15);
+  color: #ff4d4f;
+  border: 1rpx solid rgba(255, 77, 79, 0.4);
+}
+
+.rch-save-btn {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #4a9eff;
+  padding: 10rpx 22rpx;
+  border-radius: 10rpx;
+  background: rgba(74, 158, 255, 0.12);
+  border: 1rpx solid rgba(74, 158, 255, 0.4);
+}
+
+.rch-save-btn:active {
+  background: rgba(74, 158, 255, 0.25);
+}
+
+/* 顶部：建议下单数量（居中显示） */
+.result-head {
+  text-align: center;
+  padding: 36rpx 28rpx 32rpx;
+  margin: 0 24rpx 0;
+  border-bottom: 1rpx solid #1e2436;
+}
+
+.result-head-label {
+  font-size: 24rpx;
+  color: #8892a4;
+  margin-bottom: 12rpx;
+}
+
+/* 下单数量单位切换 */
+.qty-unit-switch {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin: 0 auto 20rpx;
+  width: 200rpx;
+  background: #0d1117;
+  border: 1.5rpx solid #2a2d3e;
+  border-radius: 10rpx;
+  overflow: hidden;
+}
+
+.qty-unit-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #555e72;
+  transition: all 0.2s;
+}
+
+.qty-tab-active {
+  background: #fa8c16;
+  color: #fff;
+}
+
+.result-qty-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10rpx;
+}
+
+.result-main-val {
+  font-size: 96rpx;
+  font-weight: 300;
+  color: #fa8c16;
+  line-height: 1;
+  letter-spacing: 2rpx;
+}
+
+.result-main-unit {
+  font-size: 28rpx;
+  color: #8892a4;
+  font-weight: 400;
+}
+
+.result-notional {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #8892a4;
+}
+
+/* 保证金占用 / 剩余保证金 - 中间块 */
+.margin-usage-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx;
+  margin: 0 24rpx;
+  border-bottom: 1rpx solid #1e2436;
+  gap: 20rpx;
+}
+
+/* 圆形进度环 */
+.ring-wrap {
+  position: relative;
+  width: 110rpx;
+  height: 110rpx;
+  flex-shrink: 0;
+}
+
+.ring-canvas {
+  width: 110rpx;
+  height: 110rpx;
+}
+
+.ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #e0e0e0;
+}
+
+.usage-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.usage-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  flex-shrink: 0;
+}
+
+.usage-label {
+  font-size: 22rpx;
+  color: #8892a4;
+}
+
+.usage-val {
+  font-size: 36rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.usage-sub {
+  font-size: 22rpx;
+  color: #6a7485;
+}
+
+/* 2x2 数据网格 */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0 24rpx;
+  border-bottom: 1rpx solid #1e2436;
+}
+
+.rg-item {
+  padding: 28rpx 28rpx;
+  text-align: left;
+  position: relative;
+}
+
+.rg-item:nth-child(odd)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1rpx;
+  background: #1e2436;
+}
+
+.rg-item:nth-child(-n+4) {
+  border-bottom: 1rpx solid #1e2436;
+}
+
+.rg-sub {
+  font-size: 20rpx;
+  color: #6a7485;
+  font-weight: 400;
+  margin-left: 6rpx;
+}
+
+.rg-label {
+  font-size: 24rpx;
+  color: #8892a4;
+  margin-bottom: 12rpx;
+}
+
+.rg-val {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #e0e0e0;
+  letter-spacing: 1rpx;
+}
+
+/* 颜色工具类 */
+.red-val { color: #ff4d4f; }
+.green-val { color: #52c41a; }
+.orange-val { color: #fa8c16; }
+.blue-val { color: #4a9eff; }
+
+/* 保证金状态栏 */
+.margin-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  border-radius: 12rpx;
+  padding: 22rpx 24rpx;
+  margin: 24rpx 24rpx 0;
+}
+
+.msb-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.msb-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.msb-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.msb-desc {
+  font-size: 22rpx;
+  color: #8892a4;
+  font-weight: 400;
+}
+
+.margin-ok {
+  background: rgba(82, 196, 26, 0.08);
+  border: 1rpx solid rgba(82, 196, 26, 0.3);
+}
+
+.margin-ok .msb-icon {
+  background: rgba(82, 196, 26, 0.2);
+}
+
+.margin-ok .msb-title {
+  color: #52c41a;
+}
+
+.margin-warn {
+  background: rgba(250, 140, 22, 0.08);
+  border: 1rpx solid rgba(250, 140, 22, 0.3);
+}
+
+.margin-warn .msb-icon {
+  background: rgba(250, 140, 22, 0.2);
+}
+
+.margin-warn .msb-title {
+  color: #fa8c16;
+}
+
+.error-bar {
+  margin: 0 24rpx 16rpx;
+  background: #2a0a0a;
+  border: 1.5rpx solid #ff4d4f;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 26rpx;
+  color: #ff4d4f;
+  text-align: center;
+}
+
+/* ===== 手续费类型选择 ===== */
+.fee-type-switch {
+  display: flex;
+  gap: 16rpx;
+  margin: 0 0 20rpx;
+}
+
+.fee-type-btn {
+  flex: 1;
+  border-radius: 16rpx;
+  padding: 24rpx 20rpx;
+  text-align: center;
+  border: 1.5rpx solid #2a2d3e;
+  background: #1a1d2e;
+  transition: all 0.2s;
+}
+
+.fee-type-btn:active {
+  opacity: 0.75;
+}
+
+.fee-btn-title {
+  font-size: 26rpx;
+  color: #aaa;
+  margin-bottom: 8rpx;
+}
+
+.fee-btn-rate {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #666;
+}
+
+.fee-maker-active {
+  border-color: #a855f7;
+  background: #1e1030;
+}
+
+.fee-maker-active .fee-btn-title {
+  color: #c084fc;
+}
+
+.fee-maker-active .fee-btn-rate {
+  color: #a855f7;
+}
+
+.fee-taker-active {
+  border-color: #f59e0b;
+  background: #1e1500;
+}
+
+.fee-taker-active .fee-btn-title {
+  color: #fbbf24;
+}
+
+.fee-taker-active .fee-btn-rate {
+  color: #f59e0b;
+}
+
+.fee-inactive .fee-btn-title {
+  color: #555;
+}
+
+.fee-inactive .fee-btn-rate {
+  color: #444;
+}
+
+.fee-tip {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+  padding: 0 4rpx;
+}
+
+/* ===== 手续费明细（结果区） ===== */
+.fee-detail-card {
+  margin: 0 24rpx 0;
+  background: #0f1520;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  border: 1rpx solid #1e2436;
+  border-top: 2rpx solid #a855f7;
+}
+
+.fee-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+  font-size: 26rpx;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.fee-detail-icon {
+  font-size: 28rpx;
+}
+
+.fee-detail-type {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: #a855f7;
+  background: #1e1030;
+  border: 1rpx solid #a855f7;
+  border-radius: 8rpx;
+  padding: 4rpx 14rpx;
+}
+
+.fee-detail-row {
+  display: flex;
+  align-items: center;
+}
+
+.fee-detail-item {
+  flex: 1;
+  text-align: center;
+}
+
+.fee-detail-sep {
+  width: 1rpx;
+  height: 48rpx;
+  background: #1e2436;
+  flex-shrink: 0;
+}
+
+.fee-detail-label {
+  font-size: 22rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.fee-detail-val {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.fee-total-val {
+  color: #a855f7;
+}
+
+/* ===== 手续费设置卡片（输入区） ===== */
+.fee-setting-card {
+  border-left: 4rpx solid #a855f7;
+}
+
+.fee-setting-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.fee-setting-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.fee-setting-divider {
+  width: 1rpx;
+  height: 80rpx;
+  background: #2a2d3e;
+  margin: 0 24rpx;
+  flex-shrink: 0;
+}
+
+.fee-setting-label {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.fee-setting-tag {
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  letter-spacing: 1rpx;
+}
+
+.maker-tag {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border: 1rpx solid rgba(168, 85, 247, 0.4);
+}
+
+.taker-tag {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1rpx solid rgba(245, 158, 11, 0.4);
+}
+
+.fee-setting-desc {
+  font-size: 22rpx;
+  color: #6a7485;
+}
+
+.fee-input-wrap {
+  height: 72rpx !important;
+}
+
+.fee-input-wrap .dark-input {
+  font-size: 32rpx !important;
+  height: 72rpx !important;
+  line-height: 72rpx !important;
+}
+
+/* ===== 手续费明细费率信息行 ===== */
+.fee-rate-info {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #1e2436;
+}
+
+.fee-rate-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.fee-rate-tag {
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 3rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.fee-rate-text {
+  font-size: 24rpx;
+  color: #8892a4;
+}
