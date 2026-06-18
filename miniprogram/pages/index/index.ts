@@ -171,9 +171,6 @@ qtyUnit: 'coin' as 'coin' | 'usd',  // 当前展示单位
     const maxLoss = p * (risk / 100);
     const priceDiff = Math.abs(entry - stop);
     const stopLossRange = (priceDiff / entry) * 100;
-    const takeProfit = direction === 'long'
-      ? entry + priceDiff * rr
-      : entry - priceDiff * rr;
 
     // 考虑手续费反推下单量：
     // 设下单价值为 V，止损价值 = V * (stop/entry)
@@ -189,6 +186,24 @@ qtyUnit: 'coin' as 'coin' | 'usd',  // 当前展示单位
     const openFee = orderValue * makerRate;
     const closeFee = (orderValue * stopRatio) * takerRate;
     const totalFee = openFee + closeFee;
+
+    // 止盈价（用已有开仓费 + 平仓费抵扣，净盈利 = 最大亏损 × 盈亏比）：
+    // 做多：V×(TP/entry-1) - 开仓费 - 平仓费 = 目标净盈利
+    // 做空：V×(1-TP/entry) - 开仓费 - 平仓费 = 目标净盈利
+    const targetProfit = maxLoss * rr;
+    const feeOffset = (targetProfit + openFee + closeFee) / orderValue;
+    let takeProfit: number;
+    if (direction === 'long') {
+      takeProfit = entry * (1 + feeOffset);
+      if (!isFinite(takeProfit) || takeProfit <= entry) {
+        this.setData({ hasResult: true, errorMsg: '手续费过高，无法计算有效止盈价' }); return;
+      }
+    } else {
+      takeProfit = entry * (1 - feeOffset);
+      if (!isFinite(takeProfit) || takeProfit <= 0 || takeProfit >= entry) {
+        this.setData({ hasResult: true, errorMsg: '手续费过高，无法计算有效止盈价' }); return;
+      }
+    }
 
     const margin = orderValue / lev;
     const requiredLeverage = Math.ceil(orderValue / p);

@@ -201,7 +201,7 @@
           <view class="rg-val red-val">{{stopLossPrice}}</view>
         </view>
         <view class="rg-item">
-          <view class="rg-label">止盈价 <text class="rg-sub">1:{{riskRewardRatio}}</text></view>
+          <view class="rg-label">止盈价 <text class="rg-sub">含手续费 1:{{riskRewardRatio}}</text></view>
           <view class="rg-val green-val">{{takeProfitPrice}}</view>
         </view>
         <view class="rg-item">
@@ -269,10 +269,13 @@
       <view wx:if="{{showFormula}}" class="formula-body">
         <view class="formula-line">最大亏损 = 本金 × 风险比例</view>
         <view class="formula-line">止损幅度 = |入场价 - 止损价| / 入场价</view>
-        <view class="formula-line">止盈价(做多) = 入场价 + |入场价 - 止损价| × 盈亏比</view>
-        <view class="formula-line">止盈价(做空) = 入场价 - |入场价 - 止损价| × 盈亏比</view>
-        <view class="formula-line">开仓手续费 = 下单价值 × 0.02%（Maker 限价单）</view>
-        <view class="formula-line">平仓手续费 = 下单价值 × (止损价/入场价) × 0.05%（Taker 市价单）</view>
+        <view class="formula-line">目标净盈利 = 最大亏损 × 盈亏比</view>
+        <view class="formula-line">做多净盈利 = 下单价值×(止盈价/入场价-1) - 开仓手续费 - 平仓手续费</view>
+        <view class="formula-line">做空净盈利 = 下单价值×(1-止盈价/入场价) - 开仓手续费 - 平仓手续费</view>
+        <view class="formula-line">止盈价(做多) = 入场价 × (1 + (目标净盈利+开仓费+平仓费)/下单价值)</view>
+        <view class="formula-line">止盈价(做空) = 入场价 × (1 - (目标净盈利+开仓费+平仓费)/下单价值)</view>
+        <view class="formula-line">开仓手续费 = 下单价值 × Maker费率（限价单）</view>
+        <view class="formula-line">平仓手续费 = 下单价值 × (止损价/入场价) × Taker费率</view>
         <view class="formula-line">建议仓位 = 最大亏损 / (止损幅度 + Maker费率 + 止损价/入场价×Taker费率)</view>
         <view class="formula-line">所需保证金 = 建议仓位 / 杠杆</view>
         <view class="formula-line">下单数量 = 建议仓位 / 入场价</view>
